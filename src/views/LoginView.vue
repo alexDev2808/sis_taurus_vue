@@ -68,7 +68,7 @@ const login = async () => {
             <!-- Logo -->
             <div class="app-brand justify-content-center">
               <span class="app-brand-logo demo">
-                <img src="../assets/img/TES_color.png" width="150" />
+                <img src="/assets/img/TES_color.png" width="150" />
               </span>
             </div>
             <!-- Logo -->
