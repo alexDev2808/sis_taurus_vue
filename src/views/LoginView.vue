@@ -62,7 +62,7 @@ const login = async () => {
   <div class="container-xxl">
     <div class="authentication-wrapper authentication-basic container-p-y">
       <div class="authentication-inner">
-        <!-- Register -->
+        <!-- Login -->
         <div class="card">
           <div class="card-body">
             <!-- Logo -->
@@ -73,7 +73,7 @@ const login = async () => {
             </div>
             <!-- Logo -->
 
-            <h2 class="mb-3 text-center font-extrabold">Bienvenid@ 👋</h2>
+            <h2 class="mb-3 text-center fw-bold">Bienvenid@ 👋</h2>
 
             <form class="mb-3" method="POST" @submit.prevent="login">
               <div class="mb-3">
