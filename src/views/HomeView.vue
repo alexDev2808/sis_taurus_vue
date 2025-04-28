@@ -1,59 +1,86 @@
 <script setup>
-import { ref, computed } from "vue";
-import axios from "axios";
+  import { ref, computed } from "vue";
+  import axios from "axios";
 
-const errorMessage = ref("");
-const user = ref("");
-const isLoading = ref(false);
-const logged = ref(false);
+  const errorMessage = ref("");
+  const user = ref("");
+  const isLoading = ref(false);
+  const logged = ref(false);
 
-// URL del endpoint de login
-const meUrl = "/v1/auth/me";
-// Configuración del cliente Axios
-const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_AUTH_URL, // URL base de la API
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-// Agregar un interceptor para incluir el token en todas las solicitudes
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    const tokenType = localStorage.getItem("token_type");
+  // URL del endpoint de login
+  const meUrl = "/v1/auth/me";
+  // Configuración del cliente Axios
+  const apiClient = axios.create({
+    baseURL: import.meta.env.VITE_API_AUTH_URL, // URL base de la API
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  // Agregar un interceptor para incluir el token en todas las solicitudes
+  apiClient.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("token");
+      const tokenType = localStorage.getItem("token_type");
 
-    if (token && tokenType) {
-      config.headers.Authorization = `${tokenType} ${token}`;
+      if (token && tokenType) {
+        config.headers.Authorization = `${tokenType} ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
     }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+  );
 
-// Función para obtener el perfil de usuario
-const getUserProfile = async () => {
-  try {
-    const response = await apiClient.get(meUrl); // No es necesario repetir el encabezado aquí
-    localStorage.setItem("user", JSON.stringify(response.data));
-    logged.value = true;
-    user.value = response.data;
-    return response.data;
-  } catch (error) {
-    localStorage.clear();
+  // Función para obtener el perfil de usuario
+  const getUserProfile = async () => {
+    try {
+      const response = await apiClient.get(meUrl); // No es necesario repetir el encabezado aquí
+      localStorage.setItem("user", JSON.stringify(response.data));
+      logged.value = true;
+      user.value = response.data;
+      return response.data;
+    } catch (error) {
+      localStorage.clear();
 
-    // Redirigir al usuario
-    window.location.href = "/";
-    isLoading.value = false;
-    console.error(
-      "Error al obtener perfil:",
-      error.response?.data || error.message
-    );
-    throw error;
-  }
-};
-getUserProfile();
+      // Redirigir al usuario
+      window.location.href = "/";
+      isLoading.value = false;
+      console.error(
+        "Error al obtener perfil:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  };
+
+    // Función para cerrar la sesión del usuario
+    const logout = async () => {
+    try {
+      const meUrl = "/v1/auth/logout";
+      const response = await apiClient.get(meUrl); // No es necesario repetir el encabezado aquí
+      localStorage.setItem("user", JSON.stringify(response.data));
+      logged.value = true;
+      user.value = response.data;
+      return response.data;
+      
+    } catch (error) {
+      localStorage.clear();
+
+      // Redirigir al usuario
+      window.location.href = "/";
+      isLoading.value = false;
+      console.error(
+        "Error al obtener perfil:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  };
+
+  getUserProfile();
+
+
 </script>
 
 
@@ -98,6 +125,7 @@ getUserProfile();
               <img
                 src="/assets/img/TES_color.png"
                 alt=""
+                width="80"
                 class="img-fluid"
               />
             </a>
@@ -294,7 +322,7 @@ getUserProfile();
                     <input
                       class="form-control custom-shadow custom-radius border-0 bg-white"
                       type="search"
-                      placeholder="Search"
+                      placeholder="Buscar"
                       aria-label="Search"
                     />
                     <i class="form-control-icon" data-feather="search"></i>
@@ -320,7 +348,7 @@ getUserProfile();
                   width="40"
                 />
                 <span class="ms-2 d-none d-lg-inline-block"
-                  ><span>Hello,</span> <span class="text-dark">Jason Doe</span>
+                  ><span>Hola,</span> <span class="text-dark">{{ user.name }}</span>
                   <i data-feather="chevron-down" class="svg-icon"></i
                 ></span>
               </a>
@@ -345,9 +373,9 @@ getUserProfile();
                   Account Setting</a
                 >
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="javascript:void(0)"
+                <a @click="logout" class="dropdown-item" href="javascript:void(0)"
                   ><i data-feather="power" class="svg-icon me-2 ms-1"></i>
-                  Logout</a
+                  Cerrar sesión</a
                 >
                 <div class="dropdown-divider"></div>
                 <div class="pl-4 p-3">
@@ -679,11 +707,12 @@ getUserProfile();
 
             <li class="sidebar-item">
               <a
+                @click="logout"
                 class="sidebar-link sidebar-link"
                 href="authentication-login1.html"
                 aria-expanded="false"
                 ><i data-feather="log-out" class="feather-icon"></i
-                ><span class="hide-menu">Logout</span></a
+                ><span class="hide-menu">Cerrar sesión</span></a
               >
             </li>
             <li class="sidebar-item">
@@ -770,7 +799,7 @@ getUserProfile();
             <h3
               class="page-title text-truncate text-dark font-weight-medium mb-1"
             >
-              Good Morning Jason!
+              Good Morning {{ user.name }}!
             </h3>
             <div class="d-flex align-items-center">
               <nav aria-label="breadcrumb">
